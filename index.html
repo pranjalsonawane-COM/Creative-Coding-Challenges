@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Escape Game</title>
+
+    <style>
+        body {
+            background: black;
+            color: white;
+            text-align: center;
+            font-family: Arial;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        #gameArea {
+            position: relative;
+            height: 400px;
+            border: 2px solid white;
+            margin: 20px;
+        }
+
+        #escapeBtn {
+            position: absolute;
+            padding: 10px 20px;
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #timer {
+            font-size: 20px;
+            color: yellow;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>💀 Escape Before Time Ends 💀</h1>
+<p id="timer">Time: 10</p>
+
+<div id="gameArea">
+    <button id="escapeBtn">CLICK ME 😈</button>
+</div>
+
+<p id="result"></p>
+
+<script>
+let time = 10;
+let btn = document.getElementById("escapeBtn");
+let result = document.getElementById("result");
+
+function moveButton() {
+    let x = Math.random() * 300;
+    let y = Math.random() * 300;
+
+    btn.style.left = x + "px";
+    btn.style.top = y + "px";
+}
+
+// move every 500ms
+setInterval(moveButton, 500);
+
+// countdown timer
+let countdown = setInterval(() => {
+    time--;
+    document.getElementById("timer").innerText = "Time: " + time;
+
+    if (time === 0) {
+        clearInterval(countdown);
+        result.innerText = "💀 Game Over!";
+        btn.style.display = "none";
+    }
+}, 1000);
+
+// win condition
+btn.onclick = function() {
+    result.innerText = "🎉 You Escaped!";
+    btn.style.display = "none";
+}
+</script>
+
+</body>
+</html>
