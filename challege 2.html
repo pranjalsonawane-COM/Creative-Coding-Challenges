@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Catch Game 🎯</title>
+
+    <style>
+        body {
+            background: black;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        #gameArea {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border: 2px solid white;
+            margin-top: 20px;
+        }
+
+        #basket {
+            position: absolute;
+            bottom: 10px;
+            left: 45%;
+            width: 80px;
+            height: 20px;
+            background: yellow;
+        }
+
+        .object {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: red;
+            top: 0;
+        }
+
+        #score {
+            font-size: 20px;
+            color: lime;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🎯 Catch the Falling Objects</h1>
+<p id="score">Score: 0</p>
+
+<div id="gameArea">
+    <div id="basket"></div>
+</div>
+
+<p id="result"></p>
+
+<script>
+let basket = document.getElementById("basket");
+let gameArea = document.getElementById("gameArea");
+let score = 0;
+
+// move basket with keyboard
+document.addEventListener("keydown", function(e) {
+    let left = basket.offsetLeft;
+
+    if (e.key === "ArrowLeft") {
+        basket.style.left = (left - 20) + "px";
+    }
+    if (e.key === "ArrowRight") {
+        basket.style.left = (left + 20) + "px";
+    }
+});
+
+// create falling object
+function createObject() {
+    let obj = document.createElement("div");
+    obj.classList.add("object");
+
+    obj.style.left = Math.random() * (gameArea.clientWidth - 20) + "px";
+    gameArea.appendChild(obj);
+
+    let fall = setInterval(() => {
+        let top = obj.offsetTop;
+        obj.style.top = (top + 5) + "px";
+
+        // check collision
+        let basketRect = basket.getBoundingClientRect();
+        let objRect = obj.getBoundingClientRect();
+
+        if (
+            objRect.bottom >= basketRect.top &&
+            objRect.left < basketRect.right &&
+            objRect.right > basketRect.left
+        ) {
+            score++;
+            document.getElementById("score").innerText = "Score: " + score;
+            obj.remove();
+            clearInterval(fall);
+        }
+
+        // missed
+        if (top > gameArea.clientHeight) {
+            document.getElementById("result").innerText = "💀 Game Over!";
+            clearInterval(fall);
+        }
+
+    }, 50);
+}
+
+// create objects every 1 sec
+setInterval(createObject, 1000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Particle Text Animation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+let text = " Hi, I M PRANJAL💖";
+
+const textCanvas = document.createElement("canvas");
+const textCtx = textCanvas.getContext("2d");
+
+textCanvas.width = canvas.width;
+textCanvas.height = canvas.height;
+
+textCtx.fillStyle = "white";
+textCtx.font = "bold 120px Arial";
+textCtx.textAlign = "center";
+textCtx.fillText(text, canvas.width/2, canvas.height/2);
+
+const imageData = textCtx.getImageData(0, 0, canvas.width, canvas.height);
+const data = imageData.data;
+
+// Create particles from text pixels
+for (let y = 0; y < canvas.height; y += 6) {
+    for (let x = 0; x < canvas.width; x += 6) {
+        let index = (y * canvas.width + x) * 4;
+        if (data[index] > 150) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                tx: x,
+                ty: y,
+                size: 2
+            });
+        }
+    }
+}
+
+let forming = true;
+
+function animate() {
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+        if (forming) {
+            p.x += (p.tx - p.x) * 0.05;
+            p.y += (p.ty - p.y) * 0.05;
+        } else {
+            p.x += (Math.random() - 0.5) * 10;
+            p.y += (Math.random() - 0.5) * 10;
+        }
+
+        ctx.fillStyle = "cyan";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    requestAnimationFrame(animate);
+}
+
+// Toggle effect every 3 sec
+setInterval(() => {
+    forming = !forming;
+}, 3000);
+
+animate();
+
+
+
+
+// ===== SOUND + 3RD EFFECT ADDON =====
+
+// 🎵 Background sound
+let bgAudio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+bgAudio.loop = true;
+bgAudio.volume = 0.2;
+
+// Start sound on first click (browser policy)
+document.addEventListener("click", () => {
+    bgAudio.play();
+}, { once: true });
+
+// 🎹 Click sound
+let clickSound = new Audio("https://www.soundjay.com/buttons/sounds/button-09.mp3");
+
+// 🌀 Wave + pulse effect toggle
+let waveEffect = false;
+
+setInterval(() => {
+    waveEffect = !waveEffect;
+}, 4000);
+
+// Extend particles with extra properties
+particles.forEach(p => {
+    p.phase = Math.random() * Math.PI * 2;
+});
+
+// Override animate (without removing your logic)
+const oldAnimate = animate;
+
+animate = function() {
+
+    ctx.fillStyle = "rgba(0,0,0,0.15)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+
+        // ORIGINAL FORMING / SCATTER
+        if (forming) {
+            p.x += (p.tx - p.x) * 0.05;
+            p.y += (p.ty - p.y) * 0.05;
+        } else {
+            p.x += (Math.random() - 0.5) * 10;
+            p.y += (Math.random() - 0.5) * 10;
+        }
+
+        // 🌀 WAVE EFFECT (NEW)
+        if (waveEffect) {
+            p.y += Math.sin(p.x * 0.05 + p.phase) * 2;
+            p.phase += 0.1;
+        }
+
+        // ✨ PULSE GLOW
+        let glow = Math.sin(Date.now() * 0.005) * 10 + 15;
+        ctx.shadowBlur = glow;
+        ctx.shadowColor = "cyan";
+
+        // DRAW
+        ctx.fillStyle = "cyan";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    requestAnimationFrame(animate);
+};
+
+// 💥 Click = sound + mini explosion boost
+canvas.addEventListener("click", () => {
+    clickSound.currentTime = 0;
+    clickSound.play();
+
+    particles.forEach(p => {
+        p.x += (Math.random() - 0.5) * 50;
+        p.y += (Math.random() - 0.5) * 50;
+    });
+});
+
+// Restart animation
+animate();
+
+// ===== END ADDON =====
+
+
+</script>
+
+</body>
+</html>
