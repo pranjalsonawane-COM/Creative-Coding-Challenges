@@ -1,0 +1,163 @@
+
+<html>
+<head>
+    <title>Music Particle Visualizer</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            color: white;
+            font-family: Arial;
+        }
+        #fileInput {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<input type="file" id="fileInput" accept="audio/*">
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+let mouse = {x:null, y:null};
+
+canvas.addEventListener("mousemove", e=>{
+    mouse.x = e.x;
+    mouse.y = e.y;
+});
+
+// 🎵 AUDIO SETUP
+let audioCtx, analyser, dataArray;
+
+document.getElementById("fileInput").addEventListener("change", function(e){
+    const file = e.target.files[0];
+    const url = URL.createObjectURL(file);
+
+    const audio = new Audio(url);
+    audio.crossOrigin = "anonymous";
+    audio.loop = true;
+    audio.play();
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaElementSource(audio);
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+});
+
+// TEXT PARTICLES
+let text = "PRANJAL 🚀";
+
+const textCanvas = document.createElement("canvas");
+const textCtx = textCanvas.getContext("2d");
+
+textCanvas.width = canvas.width;
+textCanvas.height = canvas.height;
+
+textCtx.fillStyle = "white";
+textCtx.font = "bold 120px Segoe UI Emoji";
+textCtx.textAlign = "center";
+textCtx.fillText(text, canvas.width/2, canvas.height/2);
+
+const imageData = textCtx.getImageData(0,0,canvas.width,canvas.height).data;
+
+for(let y=0; y<canvas.height; y+=6){
+    for(let x=0; x<canvas.width; x+=6){
+        let i = (y*canvas.width + x)*4;
+        if(imageData[i]>150){
+            particles.push({
+                x: Math.random()*canvas.width,
+                y: Math.random()*canvas.height,
+                tx: x,
+                ty: y,
+                vx:0,
+                vy:0,
+                size:2,
+                color:`hsl(${Math.random()*360},100%,60%)`
+            });
+        }
+    }
+}
+
+// CLICK EXPLOSION
+canvas.addEventListener("click", ()=>{
+    particles.forEach(p=>{
+        p.vx = (Math.random()-0.5)*20;
+        p.vy = (Math.random()-0.5)*20;
+    });
+});
+
+// ANIMATION
+function animate(){
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    let audioLevel = 0;
+
+    if(analyser){
+        analyser.getByteFrequencyData(dataArray);
+        audioLevel = dataArray.reduce((a,b)=>a+b)/dataArray.length;
+    }
+
+    particles.forEach(p=>{
+
+        // FORM TEXT
+        p.vx += (p.tx - p.x)*0.01;
+        p.vy += (p.ty - p.y)*0.01;
+
+        // AUDIO REACTION 💥
+        p.vx += (Math.random()-0.5)*(audioLevel*0.05);
+        p.vy += (Math.random()-0.5)*(audioLevel*0.05);
+
+        // MOUSE EFFECT
+        if(mouse.x){
+            let dx = mouse.x - p.x;
+            let dy = mouse.y - p.y;
+            let dist = Math.sqrt(dx*dx+dy*dy);
+            if(dist<100){
+                p.vx -= dx*0.01;
+                p.vy -= dy*0.01;
+            }
+        }
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        p.vx *= 0.85;
+        p.vy *= 0.85;
+
+        // GLOW
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = p.color;
+
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+        ctx.fill();
+    });
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html>
