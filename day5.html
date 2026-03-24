@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pranjal Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: black;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: radial-gradient(circle at center, #111, #000);
+        }
+
+        .hero h1 {
+            font-size: 60px;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px cyan;
+        }
+
+        .typing {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #00ffff;
+            border-right: 2px solid cyan;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+            animation: typing 4s steps(40) forwards, blink 1s infinite;
+        }
+
+        @keyframes typing {
+            to { width: 300px; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        section {
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 35px;
+            text-shadow: 0 0 10px cyan;
+        }
+
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .card {
+            width: 250px;
+            padding: 20px;
+            background: #111;
+            border-radius: 15px;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0,255,255,0.2);
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px cyan;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background: cyan;
+            color: black;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>PRANJAL SONAWANE</h1>
+    <div class="typing">Creative Developer 👩‍💻</div>
+    <button class="btn" onclick="scrollToSection()">Explore</button>
+</div>
+
+<section id="about">
+    <h2>About Me</h2>
+    <p>I create interactive and creative web experiences using JavaScript and modern UI design.</p>
+</section>
+
+<section>
+    <h2>Projects</h2>
+    <div class="cards">
+        <div class="card">Particle Animation ✨</div>
+        <div class="card">Music Visualizer 🎵</div>
+        <div class="card">Creative UI Design 🎨</div>
+    </div>
+</section>
+
+<section>
+    <h2>Skills</h2>
+    <div class="cards"></div>
+</section>
+
+<script>
+// SCROLL
+function scrollToSection(){
+    window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
+}
+
+// 🎵 MUSIC
+let music = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3");
+music.loop = true;
+music.volume = 0.2;
+document.addEventListener("click", () => music.play(), { once: true });
+
+// 🌌 PARTICLES BACKGROUND
+const canvasBg = document.createElement("canvas");
+canvasBg.width = window.innerWidth;
+canvasBg.height = window.innerHeight;
+canvasBg.style.position = "fixed";
+canvasBg.style.top = 0;
+canvasBg.style.left = 0;
+canvasBg.style.zIndex = "-1";
+document.body.appendChild(canvasBg);
+
+const ctxBg = canvasBg.getContext("2d");
+
+let bgParticles = [];
+for(let i=0;i<80;i++){
+    bgParticles.push({
+        x: Math.random()*canvasBg.width,
+        y: Math.random()*canvasBg.height,
+        size: Math.random()*2,
+        speed: Math.random()*1
+    });
+}
+
+function animateBg(){
+    ctxBg.clearRect(0,0,canvasBg.width,canvasBg.height);
+
+    bgParticles.forEach(p=>{
+        p.y += p.speed;
+        if(p.y > canvasBg.height) p.y = 0;
+
+        ctxBg.fillStyle = "cyan";
+        ctxBg.beginPath();
+        ctxBg.arc(p.x,p.y,p.size,0,Math.PI*2);
+        ctxBg.fill();
+    });
+
+    requestAnimationFrame(animateBg);
+}
+animateBg();
+
+// 🎞️ SCROLL REVEAL
+const sections = document.querySelectorAll("section");
+sections.forEach(sec=>{
+    sec.style.opacity = 0;
+    sec.style.transform = "translateY(50px)";
+    sec.style.transition = "1s";
+});
+
+window.addEventListener("scroll", ()=>{
+    sections.forEach(sec=>{
+        if(sec.getBoundingClientRect().top < window.innerHeight-100){
+            sec.style.opacity = 1;
+            sec.style.transform = "translateY(0)";
+        }
+    });
+});
+
+// 🖱️ CURSOR GLOW
+const glow = document.createElement("div");
+glow.style.cssText = "position:fixed;width:20px;height:20px;border-radius:50%;background:cyan;pointer-events:none;box-shadow:0 0 20px cyan;";
+document.body.appendChild(glow);
+
+document.addEventListener("mousemove", e=>{
+    glow.style.left = e.clientX+"px";
+    glow.style.top = e.clientY+"px";
+});
+
+// 💥 CLICK EFFECT (RIPPLE + BUTTERFLY COMBINED)
+document.addEventListener("click", e=>{
+
+    // Ripple
+    let ripple = document.createElement("div");
+    ripple.style.cssText = `
+        position:fixed;
+        left:${e.clientX}px;
+        top:${e.clientY}px;
+        width:10px;height:10px;
+        border:2px solid cyan;
+        border-radius:50%;
+        transform:translate(-50%,-50%);
+        animation:ripple 0.6s linear;
+    `;
+    document.body.appendChild(ripple);
+    setTimeout(()=>ripple.remove(),600);
+
+    // Butterfly
+    let butterfly = document.createElement("div");
+    butterfly.innerHTML = ["🦋","✨","💖","🌸"][Math.floor(Math.random()*4)];
+    butterfly.style.cssText = `
+        position:fixed;
+        left:${e.clientX}px;
+        top:${e.clientY}px;
+        font-size:20px;
+        pointer-events:none;
+        animation:fly 2s forwards;
+    `;
+    document.body.appendChild(butterfly);
+    setTimeout(()=>butterfly.remove(),2000);
+});
+
+// animations
+let style = document.createElement("style");
+style.innerHTML = `
+@keyframes ripple{
+    to{width:100px;height:100px;opacity:0;}
+}
+@keyframes fly{
+    0%{transform:translate(-50%,-50%);opacity:1;}
+    100%{transform:translate(50px,-150px);opacity:0;}
+}`;
+document.head.appendChild(style);
+
+// 🎭 TAGLINES
+const taglines = [
+    "Creative Developer 👩‍💻",
+    "I make code look cool 😎",
+    "Turning bugs into features 🐛✨",
+    "Future Web Wizard 🧙‍♀️"
+];
+let tagIndex = 0;
+const typingDiv = document.querySelector(".typing");
+
+setInterval(()=>{
+    tagIndex = (tagIndex+1)%taglines.length;
+    typingDiv.innerText = taglines[tagIndex];
+},3000);
+
+// 🧠 GREETING
+let hour = new Date().getHours();
+let greet = hour<12?"Good Morning ☀️":hour<18?"Good Afternoon 🌤️":"Good Evening 🌙";
+document.querySelector("#about p").innerText = greet + "! I create interactive web experiences.";
+
+// 📊 SKILLS
+document.querySelectorAll(".cards")[1].innerHTML = `
+<div style="width:300px;text-align:left">
+HTML<div style="background:#333;height:10px"><div style="width:90%;height:10px;background:cyan"></div></div><br>
+CSS<div style="background:#333;height:10px"><div style="width:85%;height:10px;background:cyan"></div></div><br>
+JS<div style="background:#333;height:10px"><div style="width:80%;height:10px;background:cyan"></div></div>
+</div>`;
+
+// 😂 FUN BUTTON
+let btn = document.createElement("button");
+btn.innerText="Hire Me 😎";
+btn.className="btn";
+btn.style.position="fixed";
+btn.style.bottom="20px";
+btn.style.right="20px";
+
+let t=true;
+btn.onclick=()=>{
+    btn.innerText = t?"Please hire me 🥺":"I'm awesome 😎";
+    t=!t;
+};
+document.body.appendChild(btn);
+
+// 🌈 TEXT GLOW
+setInterval(()=>{
+    document.querySelector(".hero h1").style.textShadow =
+    `0 0 20px hsl(${Math.random()*360},100%,60%)`;
+},1000);
+
+</script>
+
+</body>
+</html>
