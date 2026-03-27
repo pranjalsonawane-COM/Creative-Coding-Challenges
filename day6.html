@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Where Did I Keep It?</title>
+
+<style>
+body{
+    font-family: 'Segoe UI';
+    background:#0f172a;
+    color:white;
+    text-align:center;
+}
+
+h1{color:cyan;}
+
+.card{
+    display:inline-block;
+    background:#1e293b;
+    padding:15px;
+    margin:10px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 15px cyan;
+}
+
+#timer{color:cyan;font-size:20px;}
+button{
+    padding:10px 20px;
+    background:cyan;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+</style>
+
+</head>
+<body>
+
+<h1>🧠 Where Did I Keep It?</h1>
+
+<div id="start">
+    <p>Test your memory using real-life objects</p>
+    <button onclick="startGame()">Start</button>
+</div>
+
+<div id="game" style="display:none">
+    <h2 id="title"></h2>
+    <div id="timer"></div>
+    <div id="content"></div>
+</div>
+
+<div id="result"></div>
+
+<script>
+
+let round=0;
+let score=0;
+let timer;
+let timeLeft=5;
+
+const rounds = [
+
+{
+title:"🖥️ Study Table",
+items:["💻","📘","☕","📱","🔑"],
+question:"Where was ☕ ?",
+options:["Left","Middle","Right"],
+correct:"Middle"
+},
+
+{
+title:"🎒 Bag Packing",
+items:["📘","🖊️","🍫","🎧","📱"],
+question:"Did you pack 🎧 ?",
+options:["Yes","No"],
+correct:"Yes"
+},
+
+{
+title:"🍳 Kitchen",
+items:["🍎","🍞","🥛","🍳","🍌"],
+question:"Was 🍳 present?",
+options:["Yes","No"],
+correct:"Yes"
+},
+
+{
+title:"🛏️ Bedroom",
+items:["📱","💤","📖","🕶️","⌚"],
+question:"Where was 📱 ?",
+options:["Left","Middle","Right"],
+correct:"Left"
+},
+
+{
+title:"📚 Exam Panic",
+items:["📘","🖊️","😰","🍫","📱"],
+question:"Did you remember 🖊️ ?",
+options:["Yes","No"],
+correct:"Yes"
+}
+
+];
+
+// START
+function startGame(){
+    document.getElementById("start").style.display="none";
+    document.getElementById("game").style.display="block";
+    nextRound();
+}
+
+// NEXT ROUND
+function nextRound(){
+    clearInterval(timer);
+
+    if(round>=rounds.length){
+        showResult();
+        return;
+    }
+
+    let r = rounds[round];
+
+    document.getElementById("title").innerText = r.title;
+
+    document.getElementById("content").innerHTML =
+        r.items.map(i=>`<span style="font-size:30px;margin:10px">${i}</span>`).join("");
+
+    setTimeout(()=>{
+        showQuestion(r);
+    },3000);
+}
+
+// SHOW QUESTION
+function showQuestion(r){
+    document.getElementById("content").innerHTML = `<h3>${r.question}</h3>` +
+        r.options.map(opt=>`<div class="card" onclick="choose('${opt}')">${opt}</div>`).join("");
+
+    startTimer();
+}
+
+// TIMER
+function startTimer(){
+    timeLeft=5;
+    document.getElementById("timer").innerText="⏳ "+timeLeft;
+
+    timer=setInterval(()=>{
+        timeLeft--;
+        document.getElementById("timer").innerText="⏳ "+timeLeft;
+
+        if(timeLeft<=0){
+            clearInterval(timer);
+            round++;
+            nextRound();
+        }
+    },1000);
+}
+
+// CHOOSE
+function choose(ans){
+    clearInterval(timer);
+
+    if(ans === rounds[round].correct){
+        score++;
+    }
+
+    round++;
+    nextRound();
+}
+
+// RESULT
+function showResult(){
+    document.getElementById("game").style.display="none";
+
+    let msg="";
+
+    if(score>=4){
+        msg="🧠 You remember everything… suspicious 😏";
+    }else if(score>=3){
+        msg="⚡ Good memory, but still human 😌";
+    }else if(score>=2){
+        msg="😂 You remember snacks more than work";
+    }else{
+        msg="📉 You forgot everything except vibes";
+    }
+
+    document.getElementById("result").innerHTML=`
+        <h2>Score: ${score}/${rounds.length}</h2>
+        <p>${msg}</p>
+        <p>Created by Pranjal 💖</p>
+    `;
+}
+
+</script>
+
+</body>
+</html>
